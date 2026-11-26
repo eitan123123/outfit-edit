@@ -10,6 +10,29 @@
 main{max-width:1340px;margin:auto;padding:20px clamp(12px,3vw,36px)}h1,h2{font-family:Georgia,serif;font-weight:400;line-height:1.13;margin:0 0 10px}h1{font-size:clamp(27px,4vw,39px)}h2{font-size:clamp(23px,3vw,32px)}p{margin:8px 0}.muted,small{color:var(--muted)}.controls{display:flex;align-items:center;flex-wrap:wrap;gap:10px;margin:12px 0}.controls .push{margin-left:auto}.columns{display:grid;grid-template-columns:minmax(225px,295px) minmax(0,1fr);gap:16px}.rank-list{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:5px;max-height:72vh;overflow:auto}.rank-row{width:100%;border:0;background:none;display:grid;grid-template-columns:65px 1fr;gap:6px;text-align:left}.rank-row:hover,.card:hover{background:#ecede4}.rank-row[aria-pressed=true]{background:#dfe7db}.rank-row span{display:block}.rank-row .num{font:12px ui-monospace,monospace;margin-top:4px}.rank-row b{font-weight:650}.score{font:650 11px ui-monospace,monospace;display:inline-block!important;white-space:nowrap;border-radius:14px;padding:3px 6px;margin-right:7px;color:hsl(var(--score-hue) 80% 23%);background:hsl(var(--score-hue) 52% 88%)}.rank-row .score{margin:4px 0 0}.badge{font-size:13px;font-weight:650}.recommended{color:#365943}.situational{color:#764b19}.skip-first{color:#8a463b}
 .detail{min-width:0;background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:16px}.choices{display:flex;gap:10px;flex-wrap:wrap;margin:10px 0}.choice{display:flex;align-items:center;gap:7px;border:1px solid var(--line);border-radius:8px;padding:5px 8px;cursor:pointer}.choice img{width:42px;height:40px;object-fit:contain}.choice span{display:block}.try-wrap{display:flex;justify-content:center;background:#f0ede6;border-radius:10px;overflow:hidden;margin-top:10px}.try-viewport{height:min(65vh,535px);overflow:hidden}.try-viewport.cropped{height:min(55.25vh,455px)}.try-viewport img{display:block;max-width:100%;height:min(65vh,535px);object-fit:contain;object-position:center top}.pair{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin-top:10px}.pair button{text-align:left}.pair img{width:100%;height:225px;object-fit:contain;display:block}.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(157px,1fr));gap:12px}.card{text-align:left;background:var(--panel);padding:8px}.card img{width:100%;height:165px;object-fit:contain;display:block;border-radius:7px;background:#eeeae1;margin-bottom:6px}.portrait-grid{grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:16px}.card.portrait img{height:295px;object-fit:contain;object-position:center}.card strong,.card small{display:block}.empty{padding:20px}.dialog-head{display:flex;align-items:start;gap:15px;justify-content:space-between}.dialog-photos{display:flex;gap:9px;justify-content:center;margin:10px 0}.dialog-photos img{max-width:100%;min-width:0;width:auto;height:min(55vh,430px);object-fit:contain}.dialog-photos.two img{max-width:49%}dialog{border:1px solid var(--line);border-radius:14px;padding:19px;width:min(680px,95vw);color:var(--ink);background:var(--panel)}dialog::backdrop{background:#20282180}
 @media(max-width:650px){.columns{grid-template-columns:1fr}.rank-list{max-height:210px}.grid{grid-template-columns:repeat(auto-fill,minmax(125px,1fr))}.portrait-grid{grid-template-columns:repeat(auto-fill,minmax(165px,1fr))}.card.portrait img{height:225px}.pair img{height:160px}.controls .push{margin-left:0}}
+/* Small screens show one outfit with a dedicated rank navigator. */
+.rank-stepper{display:none}
+@media(max-width:760px){
+  header{display:block;padding:10px 12px 6px}
+  header strong{display:block;margin:0 4px 5px;font-size:23px}
+  nav{display:flex;flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none;gap:4px;padding:2px}
+  nav::-webkit-scrollbar{display:none}
+  nav button{flex:none;min-height:44px;white-space:nowrap;padding:6px 10px}
+  main{padding-top:13px}
+  .columns{grid-template-columns:minmax(0,1fr);gap:10px}
+  .paged-ranking .rank-list{display:none}
+  .rank-stepper{display:grid;grid-template-columns:52px minmax(0,1fr) 52px;gap:8px;align-items:center;position:sticky;top:0;z-index:2;margin:0 0 10px;padding:8px 2px;background:var(--paper)}
+  .rank-stepper button{min-height:49px;font-size:27px;line-height:1;padding:6px}
+  .rank-stepper button:disabled{cursor:default;opacity:.35}
+  .rank-stepper h2{font:700 29px/1 system-ui,sans-serif;margin:0;color:var(--ink)}
+  .rank-position{text-align:center}
+  .rank-position small{display:block;margin-top:4px;font-size:12px}
+  .detail{padding:13px;scroll-margin-top:75px}
+  .shirt-ranking .rank-list{max-height:none}
+  .shirt-ranking .rank-list.expanded{max-height:275px}
+  .shirt-ranking .rank-row{min-height:57px}
+  .match-filter select{min-height:44px}
+}
 </style>
 <link rel="apple-touch-icon" sizes="180x180" href="./apple-touch-icon.png">
 <link rel="icon" type="image/png" sizes="48x48" href="./favicon.png">
@@ -29,7 +52,7 @@ const items = new Map(data.items.map(item => [item.id, item]));
 const matches = new Map(data.matches.map(match => [match.id, match]));
 const tabs = [["without","Without jacket"],["with","With jacket"],["shirt","Match a shirt"],["gallery","Gallery"],["original","Original try-ons"]];
 const makeState = jacket => ({jacket, shoes:false, onYou:true, filter:"All", selected:null, scroll:0});
-const state = {tab:"without", shirt:null, category:"Shirts", originalSaved:false, views:{
+const state = {tab:"without", shirt:null, category:"Shirts", originalSaved:false, showAllPants:false, views:{
   without:makeState(false), with:makeState(true), shirt:makeState(false), original:makeState(false)
 }};
 const app = document.getElementById("app"), nav = document.querySelector("nav"), dialog = document.getElementById("photo-dialog");
@@ -49,8 +72,17 @@ function el(tag, props = {}, ...children) {
 function photo(asset, alt) {
   return el("img",{src:embeddedPhotos[asset],alt,decoding:"async",loading:"lazy"});
 }
-function go(tab) { state.tab = tab; render(); }
-function chooseShirt(id) { state.shirt = id; state.views.shirt.selected = null; state.views.shirt.scroll = 0; go("shirt"); }
+function go(tab) {
+  state.tab = tab;
+  render();
+  window.scrollTo?.(0,0);
+}
+function chooseShirt(id) {
+  state.shirt = id;
+  state.showAllPants = false;
+  state.views.shirt = makeState(false);
+  go("shirt");
+}
 function btn(label, onclick, pressed) {
   const props={type:"button",onclick};
   if (pressed !== undefined) props["aria-pressed"]=String(pressed);
@@ -96,7 +128,7 @@ function galleryView(shirtPortraits) {
   const category=shirtPortraits?"Shirts":state.category;
   const group=data.items.filter(item=>item.category===category);
   app.append(el("h1",{},shirtPortraits?"Match a shirt":"Wardrobe gallery"));
-  if(shirtPortraits) app.append(el("p",{className:"muted"},"Choose a shirt to see its ranked pants matches."));
+  if(shirtPortraits) app.append(el("p",{className:"muted"},"Choose a shirt to see its top two pants matches."));
   else app.append(el("div",{className:"controls"},...["Shirts","Pants","Shoes","Outerwear"].map(c=>btn(c,()=>{state.category=c;render();},c===category)),el("small",{},group.length+" items")));
   app.append(el("div",{className:shirtPortraits?"grid portrait-grid":"grid"},...group.map(item=>card(item,shirtPortraits))));
 }
@@ -133,15 +165,47 @@ function detail(row,v) {
   result.append(el("p",{},original?.reason||match.reason));
   return result;
 }
+function rankStepper(rows,active,v) {
+  const index=rows.indexOf(active);
+  const arrow=(shift,label,symbol)=>el("button",{
+    type:"button",disabled:index+shift<0||index+shift>=rows.length,"aria-label":label,
+    onclick:()=>{
+      const next=rows[index+shift];
+      if(!next) return;
+      v.selected=next.match.id;
+      render();
+      const navigator=document.getElementById("rank-stepper");
+      navigator?.scrollIntoView?.({block:"start"});
+      if(navigator?.querySelector) {
+        const target=navigator.querySelector(shift<0?"button:first-child":"button:last-child");
+        if(target&&!target.disabled) target.focus({preventScroll:true});
+      }
+    }
+  },symbol);
+  return el("div",{className:"rank-stepper",id:"rank-stepper"},
+    arrow(-1,"Previous outfit","‹"),
+    el("div",{className:"rank-position","aria-live":"polite"},el("h2",{},"#"+active.rank),
+      el("small",{},index+1+" of "+rows.length+(v.filter==="All"?" outfits":" matches"))),
+    arrow(1,"Next outfit","›"));
+}
 function ranking(tab) {
   const v=state.views[tab];
   const title=tab==="shirt"?items.get(state.shirt).name:tab==="original"?"Original try-ons":tab==="with"?"Ranked with jacket":"Ranked without jacket";
   app.append(el("h1",{},title));
   if(tab==="shirt") app.append(el("div",{className:"controls"},btn("‹ Choose another shirt",()=>{state.shirt=null;render();}),shirtRating(items.get(state.shirt))));
-  const rows=rowsFor(tab,v).filter(r=>v.filter==="All"||r.strength===v.filter);
+  const filtered=rowsFor(tab,v).filter(r=>v.filter==="All"||r.strength===v.filter);
+  const shirtTab=tab==="shirt";
+  const rows=shirtTab&&!state.showAllPants?filtered.slice(0,2):filtered;
   const active=rows.find(r=>r.match.id===v.selected)||rows[0];
-  const controls=el("div",{className:"controls"},el("label",{},"Match ",select(["All","Recommended","Situational","Skip first"],v.filter,x=>{v.filter=x;v.scroll=0;render();},"Match")),
-    el("small",{},rows.length+" combinations"));
+  const controls=el("div",{className:"controls match-filter"},el("label",{},"Match ",select(["All","Recommended","Situational","Skip first"],v.filter,x=>{v.filter=x;v.scroll=0;render();},"Match")),
+    el("small",{},shirtTab&&!state.showAllPants&&filtered.length>2?"Top 2 of "+filtered.length:rows.length+" combinations"));
+  if(shirtTab&&filtered.length>2) {
+    controls.append(btn(state.showAllPants?"Show top 2":"Show all "+filtered.length+" pants",()=>{
+      state.showAllPants=!state.showAllPants;
+      v.scroll=0;
+      render();
+    },state.showAllPants));
+  }
   if(tab==="without"||tab==="shirt") {
     const snow=btn(v.jacket?"❄ Remove jacket":"❄ Jacket today",()=>{v.jacket=!v.jacket;render();},v.jacket);
     snow.classList.add("push");controls.append(snow);
@@ -149,18 +213,22 @@ function ranking(tab) {
   if(tab==="original") controls.append(btn("Saved",()=>{state.originalSaved=!state.originalSaved;render();},state.originalSaved),btn("Mirror photo reference",mirrorDialog));
   app.append(controls);
   if(!active){app.append(el("p",{className:"empty muted"},"No combinations here."));return;}
-  const list=el("div",{className:"rank-list",onscroll:e=>{v.scroll=e.target.scrollTop;}});
+  const list=el("div",{className:"rank-list"+(shirtTab&&state.showAllPants?" expanded":""),onscroll:e=>{v.scroll=e.target.scrollTop;}});
   for(const row of rows) {
     const m=row.match, shirt=items.get(m.shirt), pants=items.get(m.pants);
     list.append(el("button",{className:"rank-row",type:"button","aria-pressed":String(m.id===active.match.id),onclick:()=>{v.selected=m.id;render();}},
       el("span",{},el("span",{className:"num"},"#"+row.rank),scoreBadge(row.score)),el("span",{},el("b",{},tab==="shirt"?pants.label:shirt.label+" + "+pants.label),
         el("span",{className:"muted"},tab==="shirt"?pants.name:shirt.name+" + "+pants.name),badge(row.strength))));
   }
-  app.append(el("div",{className:"columns"},list,detail(active,v)));
+  const paged=tab==="without"||tab==="with";
+  if(paged) app.append(rankStepper(rows,active,v));
+  app.append(el("div",{className:"columns"+(shirtTab?" shirt-ranking":paged?" paged-ranking":"")},list,detail(active,v)));
   list.scrollTop=v.scroll;
 }
 function render() {
+  const navScroll=nav.scrollLeft;
   nav.replaceChildren(...tabs.map(([id,title])=>el("button",{type:"button",role:"tab","aria-selected":String(state.tab===id),onclick:()=>go(id)},title)));
+  nav.scrollLeft=navScroll;
   app.replaceChildren();
   if(state.tab==="gallery") galleryView(false);
   else if(state.tab==="shirt"&&state.shirt==null) galleryView(true);
