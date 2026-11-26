@@ -32,6 +32,25 @@ main{max-width:1340px;margin:auto;padding:20px clamp(12px,3vw,36px)}h1,h2{font-f
   .shirt-ranking .rank-list.expanded{max-height:275px}
   .shirt-ranking .rank-row{min-height:57px}
   .match-filter select{min-height:44px}
+  /* Put the try-on directly below the rank on phones. */
+  main:has(.paged-ranking){padding-top:6px}
+  main:has(.paged-ranking)>h1{font-size:19px;margin:2px 0 3px;line-height:1.2}
+  main:has(.paged-ranking)>.match-filter{gap:5px 8px;margin:4px 0 2px;font-size:12px}
+  main:has(.paged-ranking)>.match-filter .push{margin-left:auto}
+  main:has(.paged-ranking)>.match-filter select{padding:4px 6px}
+  .rank-stepper{padding:4px 2px;margin-bottom:4px}
+  .rank-stepper h2{font-size:25px}
+  .rank-position small{margin-top:2px}
+  .paged-ranking .detail{display:flex;flex-direction:column;padding:7px;overflow:hidden}
+  .paged-ranking .try-wrap{order:-1;margin:0 0 8px}
+  .paged-ranking .try-viewport{height:clamp(220px,54svh,480px)}
+  .paged-ranking .try-viewport.cropped{height:calc(clamp(220px,54svh,480px) * .85)}
+  .paged-ranking .try-viewport img{height:clamp(220px,54svh,480px)}
+  .paged-ranking .outfit-status{margin:3px 4px}
+  .paged-ranking .detail h2{font-size:18px;margin:2px 4px 4px}
+  .paged-ranking .detail small,.paged-ranking .detail p{margin-inline:4px}
+  .paged-ranking .choices{font-size:12px;gap:7px;margin:7px 4px}
+  .paged-ranking .choice{min-height:44px}
 }
 </style>
 <link rel="apple-touch-icon" sizes="180x180" href="./apple-touch-icon.png">
@@ -143,7 +162,7 @@ function detail(row,v) {
   const {match,original,strength,score}=row;
   const shirt=items.get(match.shirt), pants=items.get(match.pants), jacket=items.get(match.jacket), shoes=items.get(match.shoes);
   const change = (key,value) => {v[key]=value; v.onYou=true; render();};
-  const result=el("section",{className:"detail"},scoreBadge(score),badge(strength),el("h2",{},original?.title||shirt.name+" + "+pants.name));
+  const result=el("section",{className:"detail"},el("div",{className:"outfit-status"},scoreBadge(score),badge(strength)),el("h2",{},original?.title||shirt.name+" + "+pants.name));
   if(original) result.append(btn(favorites.has(match.id)?"Saved":"Save",()=>{
     if(favorites.has(match.id)) favorites.delete(match.id);else favorites.add(match.id);
     try {localStorage.setItem("outfit-edit-favorites",JSON.stringify([...favorites]));} catch {}
@@ -156,7 +175,7 @@ function detail(row,v) {
   if(v.onYou) {
     const asset=v.jacket?match.with:match.without;
     result.append(el("div",{className:"try-wrap"},el("div",{className:"try-viewport"+(v.shoes?"":" cropped")},
-      photo(asset,"AI try-on "+(v.jacket?"with jacket":"without jacket")+(v.shoes?" and suggested shoes":", cropped above shoes")))),
+      el("img",{src:embeddedPhotos[asset],alt:"AI try-on "+(v.jacket?"with jacket":"without jacket")+(v.shoes?" and suggested shoes":", cropped above shoes"),decoding:"async",fetchPriority:"high"}))),
       el("small",{},"AI preview. Fit and colors may vary."));
   } else {
     result.append(el("div",{className:"pair"},...[shirt,pants].map(item=>
