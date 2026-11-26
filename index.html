@@ -191,10 +191,11 @@ function rankStepper(rows,active,v) {
     onclick:()=>{
       const next=rows[index+shift];
       if(!next) return;
+      const {scrollX,scrollY}=window;
       v.selected=next.match.id;
       render();
+      window.scrollTo(scrollX,scrollY);
       const navigator=document.getElementById("rank-stepper");
-      navigator?.scrollIntoView?.({block:"start"});
       if(navigator?.querySelector) {
         const target=navigator.querySelector(shift<0?"button:first-child":"button:last-child");
         if(target&&!target.disabled) target.focus({preventScroll:true});
