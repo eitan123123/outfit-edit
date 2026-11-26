@@ -52,6 +52,19 @@ main{max-width:1340px;margin:auto;padding:20px clamp(12px,3vw,36px)}h1,h2{font-f
   .paged-ranking .choices{font-size:12px;gap:7px;margin:7px 4px}
   .paged-ranking .choice{min-height:44px}
 }
+@media(max-width:760px){
+  .shirt-ranking .rank-list,.shirt-ranking .rank-list.expanded{max-height:none;overflow:visible;padding:2px 10px}
+  .shirt-ranking .rank-row{align-items:center;grid-template-columns:58px 1fr;padding:9px 8px;border-radius:8px}
+  .shirt-ranking .rank-row+.rank-row{border-top:1px solid var(--line)}
+  .shirt-ranking .rank-row .muted{color:var(--ink);font-weight:600}
+  .shirt-ranking .rank-row b,.shirt-ranking .rank-row .badge{font-size:12px}
+  .shirt-ranking .detail{display:flex;flex-direction:column}
+  .shirt-ranking .try-wrap{order:-1;margin:0 0 12px}
+  .rank-stepper button{border-radius:50%;width:46px;min-height:46px;justify-self:center}
+  .rank-stepper{border-bottom:1px solid var(--line)}
+  .match-filter button{min-height:44px}
+  main{padding-bottom:calc(22px + env(safe-area-inset-bottom))}
+}
 </style>
 <link rel="apple-touch-icon" sizes="180x180" href="./apple-touch-icon.png">
 <link rel="icon" type="image/png" sizes="48x48" href="./favicon.png">
@@ -215,12 +228,12 @@ function ranking(tab) {
   if(tab==="shirt") app.append(el("div",{className:"controls"},btn("‹ Choose another shirt",()=>{state.shirt=null;render();}),shirtRating(items.get(state.shirt))));
   const filtered=rowsFor(tab,v).filter(r=>v.filter==="All"||r.strength===v.filter);
   const shirtTab=tab==="shirt";
-  const rows=shirtTab&&!state.showAllPants?filtered.slice(0,2):filtered;
+  const rows=shirtTab&&!state.showAllPants?filtered.slice(0,3):filtered;
   const active=rows.find(r=>r.match.id===v.selected)||rows[0];
   const controls=el("div",{className:"controls match-filter"},el("label",{},"Match ",select(["All","Recommended","Situational","Skip first"],v.filter,x=>{v.filter=x;v.scroll=0;render();},"Match")),
-    el("small",{},shirtTab&&!state.showAllPants&&filtered.length>2?"Top 2 of "+filtered.length:rows.length+" combinations"));
-  if(shirtTab&&filtered.length>2) {
-    controls.append(btn(state.showAllPants?"Show top 2":"Show all "+filtered.length+" pants",()=>{
+    el("small",{},shirtTab&&!state.showAllPants&&filtered.length>3?"Top 3 of "+filtered.length:rows.length+" combinations"));
+  if(shirtTab&&filtered.length>3) {
+    controls.append(btn(state.showAllPants?"Show top 3":"Show all "+filtered.length+" pants",()=>{
       state.showAllPants=!state.showAllPants;
       v.scroll=0;
       render();
